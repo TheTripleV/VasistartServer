@@ -1,0 +1,10 @@
+fastapi[all]
+pydantic
+python-engineio
+python-socketio
+uvicorn
+starlette
+# uvloop
+websockets
+bidict
+rich
