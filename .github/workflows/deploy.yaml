@@ -1,0 +1,30 @@
+name: deploy
+
+on:
+  push:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Pull on and restart server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.VWIS_HOST }}
+        username: ${{ secrets.VWIS_USERNAME }}
+        key: ${{ secrets.VWIS_KEY }}
+        passphrase: ${{ secrets.VWIS_PASSPHRASE }}
+        script: |
+          # print info
+          whoami
+
+          # go to repo dir
+          cd ./public_html/vasistart/vasistartserver
+
+          # update
+          git pull
+
+          # restart server
+          # touch ./tmp/restart.txt
+          # source /home/vovveti2/virtualenv/public_html/vasistart/3.8/bin/activate && cd /home/vovveti2/public_html/vasistart
+          # uvicorn main:app --reload
