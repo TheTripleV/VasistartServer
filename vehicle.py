@@ -35,7 +35,7 @@ class VehicleUser(BaseModel):
 
 class Vehicle(BaseModel):
     name: str = ""
-    users: list[VehicleUser] = []
+    # users: list[VehicleUser] = []
     type: VehicleType = VehicleType.CAR
     features: VehicleFeatures = VehicleFeatures()
     state: VehicleState = VehicleState()
