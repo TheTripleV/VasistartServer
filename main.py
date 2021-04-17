@@ -10,8 +10,7 @@ import bidict
 
 app = FastAPI()
 sio = socketio.AsyncServer(async_mode='asgi')    
-socket_app = socketio.ASGIApp(sio)
-
+socket_app = socketio.WSGIApp(sio, app)
 
 
 vehicles: Dict[str, vehicle.Vehicle] = {}
