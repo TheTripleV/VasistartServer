@@ -8,10 +8,13 @@ from collections import defaultdict, deque
 import socketio
 import bidict
 from a2wsgi import ASGIMiddleware
+from rich import print
+
 
 app = FastAPI()
-sio = socketio.AsyncServer()
+sio = socketio.Server()
 socket_app = socketio.WSGIApp(sio, ASGIMiddleware(app))
+# socket_app = socketio.WSGIApp(sio)
 
 
 vehicles: Dict[str, vehicle.Vehicle] = {}
@@ -29,26 +32,26 @@ user2vehicle["test"] = "test"
 vehicle2user["test"].append("test")
 
 @sio.on("connect")
-async def connect(sid):
+def connect(sid, environ):
     print(f"User {sid} connected")
 
 @sio.on("createvehicle")
-async def createvehicle(sid):
+def createvehicle(sid):
     vehicle_id = str(uuid.uuid4())
     vehicles[vehicle_id] = vehicle.Vehicle()
-    await setvehicle(sid, vehicle_id)
+    setvehicle(sid, vehicle_id)
     sio.emit("vehicle_id", vehicle_id, to=sid)
     print(f"User {sid} created {vehicle_id}")
 
 
 @sio.on("setvehicle")
-async def setvehicle(sid, vehicle_id):
-    user2vehicle[sid] = vehicle_id
-    vehicle2user[vehicle_id].append(sid)
+def setvehicle(sid, vehicle_id):
+    # user2vehicle[sid] = vehicle_id
+    # vehicle2user[vehicle_id].append(sid)
     print(f"User {sid} is watching {vehicle_id}")
 
 @sio.on("disconnect")
-async def disconnect(sid):
+def disconnect(sid):
     try:
         vehicle2user.pop(user2vehicle[sid])
         del user2vehicle[sid]
@@ -57,7 +60,7 @@ async def disconnect(sid):
         pass
 
 @sio.on("setfeatures")
-async def setfeatures(sid, data):
+def setfeatures(sid, data):
     if sid in user2vehicle:
         vid = user2vehicle[sid]
     else:
@@ -69,7 +72,7 @@ async def setfeatures(sid, data):
         sio.emit("features", vehicles[vid].features.dict(),  to=sid)
 
 @sio.on("setstate")
-async def setstate(sid, data):
+def setstate(sid, data):
     if sid in user2vehicle:
         vid = user2vehicle[sid]
     else:
@@ -124,21 +127,6 @@ async def get_vehicle_state(vehicle_id: str):
 @app.put("/vehicle/{vehicle_id}/state")
 async def put_vehicle_state(vehicle_id: str, data: vehicle.VehicleState):
     v = await get_vehicle(vehicle_id)
-
-    if v.state.notif_loc and v.state.location != data.location:
-        print("SEND LOC NOTIF")
-
-    if v.state.notif_unlock_delay != -1 and v.state.locked and not data.locked:
-        async def _notif():
-            await asyncio.sleep(v.state.notif_unlock_delay)
-            _v = await get_vehicle(vehicle_id)
-            if not _v.state.locked:
-                print("SEND UNLOCK NOTIF")
-
-        loop = asyncio.get_event_loop()
-        loop.create_task(_notif())
-        loop.run_forever()
-        
     v.state = v.state.copy(update=data.dict(exclude_unset=True))
 
 # while True: ...

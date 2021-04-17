@@ -8,3 +8,4 @@ starlette
 websockets
 bidict
 rich
+a2wsgi
