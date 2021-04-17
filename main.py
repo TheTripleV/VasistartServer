@@ -13,8 +13,8 @@ from rich import print
 
 app = FastAPI()
 sio = socketio.Server()
-socket_app = socketio.WSGIApp(sio, ASGIMiddleware(app))
-# socket_app = socketio.WSGIApp(sio)
+# socket_app = socketio.WSGIApp(sio, ASGIMiddleware(app))
+socket_app = socketio.WSGIApp(sio)
 
 
 vehicles: Dict[str, vehicle.Vehicle] = {}
