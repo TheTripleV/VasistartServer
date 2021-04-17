@@ -7,10 +7,11 @@ import asyncio
 from collections import defaultdict, deque
 import socketio
 import bidict
+from a2wsgi import ASGIMiddleware
 
 app = FastAPI()
-sio = socketio.AsyncServer(async_mode='asgi')    
-socket_app = socketio.WSGIApp(sio, app)
+sio = socketio.AsyncServer()
+socket_app = socketio.WSGIApp(sio, ASGIMiddleware(app))
 
 
 vehicles: Dict[str, vehicle.Vehicle] = {}
