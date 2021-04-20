@@ -22,12 +22,11 @@ users = set()
 
 notif_queue = deque()
 
-vehicles["test"] = vehicle.Vehicle()
-
-
 user2vehicle = {}
 vehicle2user = defaultdict(list)
 
+vehicles["test"] = vehicle.Vehicle()
+vehicles["test"].id = "testid"
 user2vehicle["test"] = "test"
 vehicle2user["test"].append("test")
 
@@ -111,6 +110,10 @@ async def get_vehicle(vehicle_id: str, user_id: str = "0"):
         # raise HTTPException(404, "Vehicle Not Found")
 
     return vehicles[vehicle_id]
+
+@app.put("/vehicle/{vehicle_id}")
+async def put_vehicle(vehicle_id: str, data: vehicle.Vehicle):
+    vehicles[vehicle_id] = data
 
 @app.get("/vehicle/{vehicle_id}/features")
 async def get_vehicle_features(vehicle_id: str):
