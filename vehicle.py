@@ -15,8 +15,8 @@ class VehicleFeatures(BaseModel):
     engine: bool = True
 
 class Location(BaseModel):
-    latitude: float = 0
-    longitude: float = 0
+    latitude: float = 33.747971
+    longitude: float = -84.387766
 
 class FanSpeed(enum.Enum):
     OFF = "OFF"
