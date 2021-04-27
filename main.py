@@ -197,7 +197,7 @@ async def check_timers():
             Notification(
                 title = "Your vehicle is moving!",
                 message = "Tap to check the vehicle's location.",
-                to = NotificationTo.LOCK
+                to = NotificationTo.GPS
             )
         )
         print("q")
