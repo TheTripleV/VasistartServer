@@ -15,8 +15,8 @@ class VehicleFeatures(BaseModel):
     engine: bool = True
 
 class Location(BaseModel):
-    latitude: float = 0
-    longitude: float = 0
+    latitude: float = 33.747971
+    longitude: float = -84.387766
 
 class FanSpeed(enum.Enum):
     OFF = "OFF"
@@ -34,11 +34,11 @@ class VehicleState(BaseModel):
     engine_on: bool = False
     engine_on_desired: bool = False
     location: Location = Location()
-    notif_loc: bool = True
-    notif_unlock_delay = -1
-    
+    notif_location: bool = True
+    notif_lock: bool = True
+
 class Vehicle(BaseModel):
-    name: str = "noname"
+    name: str = "Vasista's Car"
     id: str = "noid"
     type: VehicleType = VehicleType.CAR
     features: VehicleFeatures = VehicleFeatures()

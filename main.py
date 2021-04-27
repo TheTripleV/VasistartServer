@@ -1,3 +1,4 @@
+from notification import Notification, NotificationTo
 from typing import Dict
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -9,6 +10,7 @@ import socketio
 import bidict
 from a2wsgi import ASGIMiddleware
 from rich import print
+from geopy.distance import distance
 
 
 app = FastAPI()
@@ -21,6 +23,8 @@ vehicles: Dict[str, vehicle.Vehicle] = {}
 users = set()
 
 notif_queue = deque()
+notif_lock = None
+notif_loc = None
 
 user2vehicle = {}
 vehicle2user = defaultdict(list)
@@ -93,13 +97,13 @@ async def root():
 async def put_vehicle( user_id: str = "0"):
     vehicle_id = str(uuid.uuid4())
     vehicles[vehicle_id] = vehicle.Vehicle()
+    vehicles[vehicle_id].id = vehicle_id
     return vehicle_id
 
 
 @app.get("/vehicles")
 async def get_vehicles():
-    print(list(vehicles.keys()))
-    return list(vehicles.keys())
+    return list(vehicles.values())
 
 @app.get("/vehicle/{vehicle_id}", response_model=vehicle.Vehicle)
 async def get_vehicle(vehicle_id: str, user_id: str = "0"):
@@ -113,7 +117,38 @@ async def get_vehicle(vehicle_id: str, user_id: str = "0"):
 
 @app.put("/vehicle/{vehicle_id}")
 async def put_vehicle(vehicle_id: str, data: vehicle.Vehicle):
+
+    async def notif():
+        await asyncio.sleep(3)
+        if not vehicles[vehicle_id].state.locked:
+            notif_lock = (
+            # notif_queue.append(
+                Notification(
+                    title = "You left your vehicle unlocked!",
+                    message = "Tap to lock your vehicle.",
+                    to = NotificationTo.LOCK
+                )
+            )
+
+    dist = distance(
+        (vehicles[vehicle_id].state.location.latitude, vehicles[vehicle_id].state.location.longitude),
+        (data.state.location.latitude, data.state.location.longitude)
+    ).ft
+
+    if dist > 5:
+        notif_loc = (
+        # notif_queue.append(
+            Notification(
+                title = "Your vehicle is moving!",
+                message = "Tap to check the vehicle's location.",
+                to = NotificationTo.GPS
+            )
+        )
+
     vehicles[vehicle_id] = data
+
+    if data.state.notif_lock and vehicles[vehicle_id].state.locked and not data.state.locked:
+        await notif()
 
 @app.get("/vehicle/{vehicle_id}/features")
 async def get_vehicle_features(vehicle_id: str):
@@ -133,15 +168,39 @@ async def put_vehicle_state(vehicle_id: str, data: vehicle.VehicleState):
     v = await get_vehicle(vehicle_id)
     v.state = v.state.copy(update=data.dict(exclude_unset=True))
 
+@app.get("/notification")
+async def get_notification():
+    global notif_lock
+    global notif_loc
+    # notif = notif_queue.pop()
+    notif = notif_loc or notif_lock
+    print(notif)
+    if notif:
+        notif_lock = None
+        notif_loc = None
+        print("Notification sent", notif)
+        return notif
+
 # while True: ...
 
 
-# loop = asyncio.get_event_loop()
+loop = asyncio.get_event_loop()
 
-# async def check_timers():
-#     while True:
-#         await asyncio.sleep(1)
-#         # print("q")
+async def check_timers():
+    global notif_lock
+    global notif_loc
 
-# loop.create_task(check_timers())
+    while True:
+        await asyncio.sleep(60)
+        print("Adding notif")
+        notif_loc = (
+            Notification(
+                title = "Your vehicle is moving!",
+                message = "Tap to check the vehicle's location.",
+                to = NotificationTo.LOCK
+            )
+        )
+        print("q")
+
+loop.create_task(check_timers())
 # loop.run_forever()
