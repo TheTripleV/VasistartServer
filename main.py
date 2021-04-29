@@ -29,10 +29,16 @@ notif_loc = None
 user2vehicle = {}
 vehicle2user = defaultdict(list)
 
-vehicles["test"] = vehicle.Vehicle()
-vehicles["test"].id = "testid"
-user2vehicle["test"] = "test"
-vehicle2user["test"].append("test")
+vehicles["Vasista's Car"] = vehicle.Vehicle()
+vehicles["Vasista's Car"].id = "Vasista's Car"
+vehicles["Vasista's Car"].name = "Vasista's Car"
+
+vehicles["Vasista's Moto"] = vehicle.Vehicle()
+vehicles["Vasista's Moto"].id = "Vasista's Moto"
+vehicles["Vasista's Moto"].name = "Vasista's Moto"
+
+user2vehicle["Vasista's Car"] = "Vasista's Car"
+vehicle2user["Vasista's Car"].append("Vasista's Car")
 
 @sio.on("connect")
 def connect(sid, environ):
@@ -93,12 +99,16 @@ async def root():
         "hello": "world"
     }
 
-@app.post("/vehicle/")
-async def put_vehicle( user_id: str = "0"):
+@app.get("/newvehicle/{vehicle_name}")
+async def put_new_vehicle( vehicle_name:str):
     vehicle_id = str(uuid.uuid4())
-    vehicles[vehicle_id] = vehicle.Vehicle()
-    vehicles[vehicle_id].id = vehicle_id
-    return vehicle_id
+    # vehicles[vehicle_id] = vehicle.Vehicle()
+    vehicles[vehicle_name] = vehicle.Vehicle()
+    # vehicles[vehicle_id].id = vehicle_id
+    vehicles[vehicle_name].id = vehicle_name
+    vehicles[vehicle_name].name = vehicle_name
+    print("VEHICLE ADDED")
+    return vehicle_name
 
 
 @app.get("/vehicles")
@@ -182,7 +192,14 @@ async def get_notification():
         return notif
 
 # while True: ...
-
+@app.get("/notification/location")
+async def put_location_notification():
+    global notif_loc
+    notif_loc = Notification(
+        title = "Your vehicle is moving!",
+        message = "Tap to check the vehicle's location.",
+        to = NotificationTo.GPS
+    )
 
 loop = asyncio.get_event_loop()
 
@@ -191,15 +208,15 @@ async def check_timers():
     global notif_loc
 
     while True:
-        await asyncio.sleep(60)
+        await asyncio.sleep(10)
         print("Adding notif")
-        notif_loc = (
-            Notification(
-                title = "Your vehicle is moving!",
-                message = "Tap to check the vehicle's location.",
-                to = NotificationTo.GPS
-            )
-        )
+        # notif_loc = (
+        #     Notification(
+        #         title = "Your vehicle is moving!",
+        #         message = "Tap to check the vehicle's location.",
+        #         to = NotificationTo.GPS
+        #     )
+        # )
         print("q")
 
 loop.create_task(check_timers())

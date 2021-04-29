@@ -36,6 +36,7 @@ class VehicleState(BaseModel):
     location: Location = Location()
     notif_location: bool = True
     notif_lock: bool = True
+    notif_away_lock: bool = True
 
 class Vehicle(BaseModel):
     name: str = "Vasista's Car"
