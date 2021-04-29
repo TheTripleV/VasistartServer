@@ -25,7 +25,8 @@ jobs:
           source /home/vovveti2/virtualenv/public_html/vasistart/vasistartserver/3.8/bin/activate
 
           # update
-          git pull
+          git fetch
+          git reset --hard origin/master
 
           # Install new requirements
           pip install --upgrade -r requirements.txt
