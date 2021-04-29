@@ -26,7 +26,7 @@ jobs:
 
           # update
           git fetch
-          git reset --hard origin/master
+          git reset --hard origin/main
 
           # Install new requirements
           pip install --upgrade -r requirements.txt
