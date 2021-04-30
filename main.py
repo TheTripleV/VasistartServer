@@ -201,6 +201,24 @@ async def put_location_notification():
         to = NotificationTo.GPS
     )
 
+@app.get("/notification/lock")
+async def put_lock_notification():
+    global notif_loc
+    notif_loc = Notification(
+        title = "You left your vehicle unlocked!",
+        message = "Tap to lock your vehicle.",
+        to = NotificationTo.GPS
+    )
+
+@app.get("/notification/lockaway")
+async def put_lockaway_notification():
+    global notif_loc
+    notif_loc = Notification(
+        title = "Was this you? Your vehicle was just unlocked.",
+        message = "Tap to lock your vehicle.",
+        to = NotificationTo.GPS
+    )
+
 loop = asyncio.get_event_loop()
 
 async def check_timers():
