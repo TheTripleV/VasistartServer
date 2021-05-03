@@ -40,6 +40,9 @@ vehicles["Vasista's Moto"].name = "Vasista's Moto"
 user2vehicle["Vasista's Car"] = "Vasista's Car"
 vehicle2user["Vasista's Car"].append("Vasista's Car")
 
+user2vehicle["Vasista's Moto"] = "Vasista's Moto"
+vehicle2user["Vasista's Moto"].append("Vasista's Moto")
+
 @sio.on("connect")
 def connect(sid, environ):
     print(f"User {sid} connected")
@@ -127,38 +130,39 @@ async def get_vehicle(vehicle_id: str, user_id: str = "0"):
 
 @app.put("/vehicle/{vehicle_id}")
 async def put_vehicle(vehicle_id: str, data: vehicle.Vehicle):
+    try:
+        # async def notif():
+        #     await asyncio.sleep(3)
+        #     if not vehicles[vehicle_id].state.locked:
+        #         notif_lock = (
+        #         # notif_queue.append(
+        #             Notification(
+        #                 title = "You left your vehicle unlocked!",
+        #                 message = "Tap to lock your vehicle.",
+        #                 to = NotificationTo.LOCK
+        #             )
+        #         )
 
-    async def notif():
-        await asyncio.sleep(3)
-        if not vehicles[vehicle_id].state.locked:
-            notif_lock = (
-            # notif_queue.append(
-                Notification(
-                    title = "You left your vehicle unlocked!",
-                    message = "Tap to lock your vehicle.",
-                    to = NotificationTo.LOCK
-                )
-            )
+        # dist = distance(
+        #     (vehicles[vehicle_id].state.location.latitude, vehicles[vehicle_id].state.location.longitude),
+        #     (data.state.location.latitude, data.state.location.longitude)
+        # ).ft
 
-    dist = distance(
-        (vehicles[vehicle_id].state.location.latitude, vehicles[vehicle_id].state.location.longitude),
-        (data.state.location.latitude, data.state.location.longitude)
-    ).ft
+        # if dist > 5:
+        #     notif_loc = (
+        #     # notif_queue.append(
+        #         Notification(
+        #             title = "Your vehicle is moving!",
+        #             message = "Tap to check the vehicle's location.",
+        #             to = NotificationTo.GPS
+        #         )
+        #     )
 
-    if dist > 5:
-        notif_loc = (
-        # notif_queue.append(
-            Notification(
-                title = "Your vehicle is moving!",
-                message = "Tap to check the vehicle's location.",
-                to = NotificationTo.GPS
-            )
-        )
+        vehicles[vehicle_id] = data
+    except: pass
 
-    vehicles[vehicle_id] = data
-
-    if data.state.notif_lock and vehicles[vehicle_id].state.locked and not data.state.locked:
-        await notif()
+    # if data.state.notif_lock and vehicles[vehicle_id].state.locked and not data.state.locked:
+    #     await notif()
 
 @app.get("/vehicle/{vehicle_id}/features")
 async def get_vehicle_features(vehicle_id: str):
@@ -218,6 +222,11 @@ async def put_lockaway_notification():
         message = "Tap to lock your vehicle.",
         to = NotificationTo.LOCK
     )
+
+@app.post("/gps")
+async def particle_gps(data):
+    print(data)
+    # vehicles["Vasista's Moto"].state.
 
 loop = asyncio.get_event_loop()
 
