@@ -223,10 +223,26 @@ async def put_lockaway_notification():
         to = NotificationTo.LOCK
     )
 
+class ParticleJson(BaseModel):
+    event: str
+    data: str
+    coreid: str
+    published_at: str
+
 @app.post("/gps")
-async def particle_gps(data):
+async def particle_gps(data: ParticleJson):
+    print("vv--gps--vv")
     print(data)
+    if data.data != "test-event":
+        lat, lon = data.data.split(" ")
+        lat = float(lat) / 1e7
+        lon = float(lon) / 1e7
+        print(f"lat: {lat}, lon: {lon}")
+        vehicles["Vasista's Moto"].state.location.latitude = lat
+        vehicles["Vasista's Moto"].state.location.longitude = lon
+    print("^^--gps--^^")
     # vehicles["Vasista's Moto"].state.
+    return "ok"
 
 loop = asyncio.get_event_loop()
 
