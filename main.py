@@ -236,7 +236,7 @@ async def check_timers():
 
     while True:
         await asyncio.sleep(10)
-        print("Adding notif")
+        # print("Adding notif")
         # notif_loc = (
         #     Notification(
         #         title = "Your vehicle is moving!",
@@ -244,7 +244,7 @@ async def check_timers():
         #         to = NotificationTo.GPS
         #     )
         # )
-        print("q")
+        # print("q")
 
 loop.create_task(check_timers())
 # loop.run_forever()
