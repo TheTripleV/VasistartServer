@@ -11,6 +11,7 @@ import bidict
 from a2wsgi import ASGIMiddleware
 from rich import print
 from geopy.distance import distance
+import requests
 
 
 app = FastAPI()
@@ -158,6 +159,8 @@ async def put_vehicle(vehicle_id: str, data: vehicle.Vehicle):
         #         )
         #     )
 
+        if vehicle_id == "Vasista's Moto" and data.state.engine_on and not vehicles[vehicle_id].state.engine_on:
+            requests.post("https://api.particle.io/v1/devices/e00fce6859c5a1b32e689883/turnOn", data={"arg": "7", "access_token": "09b47e047565fc7ac71c20d4618dca3a5abfb0c6"})
         vehicles[vehicle_id] = data
     except: pass
 
